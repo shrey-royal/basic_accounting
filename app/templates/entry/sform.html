@@ -1,0 +1,303 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Your description">
+    <meta name="author" content="Your name">
+    <title>Accounting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/fontawesome-all.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/swiper.css' %}" rel="stylesheet">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    <link rel="icon" href="{% static 'images/favicon.png' %}">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .plus-button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 25px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+        
+        .input-container {
+            display: flex;
+            align-items: center;
+        }
+        .input-label, .input-field {
+            margin-right: 10px;
+        }
+        .weight-input input[type="text"] {
+            width: 80px;
+        }
+        #dispatchButton[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #ccc;
+            color: #888;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div id="contact" class="form-1">
+        <div class="container">
+            <h1 style="color:white">Bundle Dispatch Operation</h1>
+            <form method="post" action="{% url 'dispatch' %}">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <input type="text" name="bill_no" id="billNo" class="form-control-input" placeholder="Bill No." required>
+                </div>
+                <div class="form-group" style="display: flex; align-items: center;">
+                    <input type="date" name="date" class="form-control-input" placeholder="Date">
+                </div>
+
+                <div class="form-group">
+                    <select name="name" id="customer" class="form-control">
+                        <option value="">-- Select Customer --</option>
+                        {% if customers %}
+                            {% for customer in customers %}
+                                <option value="{{ customer.id }}">{{ customer.company_name }}</option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="">No customers found</option>
+                        {% endif %}
+                    </select>
+                </div>
+                
+                &nbsp;<div><br>
+                  <label for="statusFilter" style="color:white;">Filter by Status:</label>
+                  <select id="statusFilter">
+                      <option value="all">All</option>
+                      <option value="pending">Pending</option>
+                      <option value="dispatched">Dispatched</option>
+                  </select>
+              </div><br>
+                <table style="background-color: lightgreen;">
+                    <thead>
+                        <tr style="color: black;">
+                            <th>Packing Name</th>
+                            <th>Lot No.</th>
+                            <th>Quality</th>
+                            <th>Thickness</th>
+                            <th>Bundle</th>
+                            <th>Size</th>
+                            <th>Weight</th>
+                            <th>Grade</th>
+                            <th>Sheet</th>
+                            <th>Flag</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bundleTableBody">
+                        {% for bundle in bundles %}
+                        <tr>
+                            <td>{{ bundle.bundle_entry.name }}</td>
+                            <td>{{ bundle.bundle_entry.lot_no }}</td>
+                            <td>{{ bundle.bundle_entry.quality }}</td>
+                            <td>{{ bundle.bundle_entry.point }}</td>
+                            <td>{{ bundle.bundle }}</td>
+                            <td>{{ bundle.sizes }}</td>
+                            <td class="weight-input"><input type="text" style="background-color: lightgreen;border: 1px solid transparent;" value="{{ bundle.weight }}" readonly></td>
+                            <td>{{ bundle.grade }}</td>
+                            <td>{{ bundle.sheet }}</td>
+                            <td>
+                                <input type="checkbox" name="selected_bundles" value="{{ bundle.id }}" data-weight="{{ bundle.weight }}" class='checkbox' {% if bundle.status %}disabled{% endif %}>
+                            </td>
+                            <td>{{ bundle.status|yesno:"Dispatched,Pending" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        // Add event listener to the dropdown for filtering
+                        document.getElementById('statusFilter').addEventListener('change', function() {
+                            var selectedStatus = this.value;
+                            filterRowsByStatus(selectedStatus);
+                        });
+
+                        // Calculate total weight and manage button states
+                        calculateTotalWeight();
+
+                        // Add event listener to the form for submission
+                        document.getElementById('dispatchForm').addEventListener('submit', function(event) {
+                            var selectedBundles = document.querySelectorAll('input[name=selected_bundles]:checked');
+                            if (selectedBundles.length === 0) {
+                                event.preventDefault();
+                                alert('Please select at least one bundle to dispatch.');
+                            }
+                        });
+                    });
+
+                    function calculateTotalWeight() {
+                        var total = 0;
+                        var anyChecked = false;
+                        var rows = document.querySelectorAll('#bundleTableBody tr');
+                        rows.forEach(function(row) {
+                            var checkbox = row.querySelector('input[type=checkbox]');
+                            var weightInput = row.querySelector('td.weight-input input[type=text]');
+                            if (checkbox.checked) {
+                                total += parseFloat(weightInput.value) || 0;
+                                anyChecked = true;
+                            }
+                        });
+                        document.getElementById('totalWeight').value = total.toFixed(2);
+                        var dispatchButton = document.getElementById('dispatchButton');
+                        dispatchButton.disabled = !anyChecked;
+                    }
+
+                    function filterRowsByStatus(status) {
+                        var rows = document.querySelectorAll('#bundleTableBody tr');
+                        rows.forEach(function(row) {
+                            var rowStatus = row.cells[10].innerText.trim(); // Assuming status column is the 11th column (index 10)
+                            if (status === 'all' || rowStatus.toLowerCase() === status) {
+                                row.style.display = '';
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        });
+                    }
+
+
+                    function filterTable() {
+                        const startDate = document.getElementById('startDate').value;
+                        const endDate = document.getElementById('endDate').value;
+                        const companyName = document.getElementById('companyName').value;
+                        const table = document.getElementById('packingTable').getElementsByTagName('tbody')[0];
+                        const rows = table.getElementsByTagName('tr');
+                
+                        // Convert dates to comparable format
+                        const start = new Date(startDate);
+                        const end = new Date(endDate);
+                
+                        for (let i = 0; i < rows.length; i++) {
+                            const dateCell = rows[i].getElementsByTagName('td')[0];
+                            const rowDate = new Date(dateCell.innerText);
+                            const companyCell = rows[i].getElementsByTagName('td')[8]; // Assuming the 9th cell contains the company name
+                
+                            let dateMatch = true;
+                            let companyMatch = true;
+                
+                            if (startDate && rowDate < start) {
+                                dateMatch = false;
+                            }
+                            if (endDate && rowDate > end) {
+                                dateMatch = false;
+                            }
+                            if (companyName && companyCell.innerText !== companyName) {
+                                companyMatch = false;
+                            }
+                
+                            if (dateMatch && companyMatch) {
+                                rows[i].style.display = '';
+                            } else {
+                                rows[i].style.display = 'none';
+                            }
+                        }
+                    }
+
+                    document.addEventListener('DOMContentLoaded', function () {
+                        // Generate a random bill number
+                        function generateRandomBillNumber() {
+                            return Math.floor(Math.random() * 100000);
+                        }
+                        document.getElementById('billNo').value = generateRandomBillNumber();
+
+                        // Add event listener to the dropdown for filtering
+                        document.getElementById('statusFilter').addEventListener('change', function() {
+                            var selectedStatus = this.value;
+                            filterRowsByStatus(selectedStatus);
+                        });
+
+                        // Add event listeners to checkboxes for calculating total weight and enabling dispatch button
+                        var checkboxes = document.querySelectorAll('.checkbox');
+                        checkboxes.forEach(function(checkbox) {
+                            checkbox.addEventListener('click', function() {
+                                calculateTotalWeight();
+                                var dispatchButton = document.getElementById('dispatchButton');
+                                dispatchButton.disabled = !document.querySelector('input[name=selected_bundles]:checked');
+                            });
+                        });
+                    });
+
+                    function calculateTotalWeight() {
+                        var total = 0;
+                        var rows = document.querySelectorAll('#bundleTableBody tr');
+                        rows.forEach(function(row) {
+                            var checkbox = row.querySelector('input[type=checkbox]');
+                            var weightInput = row.querySelector('td.weight-input input[type=text]');
+                            if (checkbox.checked) {
+                                total += parseFloat(weightInput.value) || 0;
+                            }
+                        });
+                        document.getElementById('totalWeight').value = total.toFixed(2);
+                    }
+
+                    document.getElementById('dispatchForm').addEventListener('submit', function(event) {
+                        var selectedBundles = document.querySelectorAll('input[name=selected_bundles]:checked');
+                        if (selectedBundles.length === 0) {
+                            event.preventDefault();
+                            alert('Please select at least one bundle to dispatch.');
+                        }
+                    });
+
+                    document.querySelectorAll('input[name=selected_bundles]').forEach(function(checkbox) {
+                        checkbox.addEventListener('change', function() {
+                            calculateTotalWeight();
+                            var anyChecked = document.querySelectorAll('input[name=selected_bundles]:checked').length > 0;
+                            document.getElementById('dispatchButton').disabled = !anyChecked;
+                        });
+                    });
+
+                    calculateTotalWeight();
+
+                    function filterRowsByStatus(status) {
+                        var rows = document.querySelectorAll('#bundleTableBody tr');
+                        rows.forEach(function(row) {
+                            var rowStatus = row.cells[10].innerText.trim(); // Assuming status column is the 11th column (index 10)
+                            if (status === 'all' || rowStatus.toLowerCase() === status) {
+                                row.style.display = '';
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        });
+                    }
+                </script>
+                <br><br>
+                <div class="col-lg-12">
+                    <h2 class="h2-heading">Total weight &nbsp;: <input type="text" id="totalWeight" name="total" style="width: 200px;" readonly></h2>
+                </div>
+                {{ form.as_p }}
+                <button type="submit" id="dispatchButton" class="plus-button" disabled>Dispatch</button>
+            </form>
+        </div>
+    </div>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/swiper.min.js' %}"></script>
+    <script src="{% static 'js/purecounter.min.js' %}"></script>
+    <script src="{% static 'js/scripts.js' %}"></script>
+</body>
+</html>

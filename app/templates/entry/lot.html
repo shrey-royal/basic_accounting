@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Accounting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/fontawesome-all.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/swiper.css' %}" rel="stylesheet">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    <link rel="icon" href="{% static 'images/favicon.png' %}">
+    
+    <style>
+        /* Copy the styles from selected.html here */
+        /* Ensure to include all relevant styles for the form */
+        /* You can replace the placeholder styles with those from selected.html */
+        .form-1 {
+            /* Add form styles here */
+        }
+
+        .h2-heading {
+            /* Add heading styles here */
+        }
+
+        .btn {
+            /* Add button styles here */
+        }
+
+        .footer {
+            /* Add footer styles here */
+        }
+
+        .footer-col {
+            /* Add footer column styles here */
+        }
+
+        .copyright {
+            /* Add copyright styles here */
+        }
+
+        /* Add any additional styles as needed */
+    </style>
+</head>
+<body>
+    <div id="contact" class="form-1">
+        <div class="container"> 
+            <form method="post" action="{% url 'lot' %}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-lg-12" style="left: -470px;position:relative;">
+                        <h2 class="h2-heading">LotNo.</h2>
+                    </div>
+                    <div class="col-lg-12">
+                        
+                        <select name="{{ form.lot_no.name }}" id="{{ form.lot_no.id_for_label }}" style="width: 200px;
+                        left: -470px;position:relative;">
+                            {% for option in form.lot_no.field.choices %}
+                                <option value="{{ option.0 }}">{{ option.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div><br><br>
+                <div class="form-group">
+                    <button type="submit" class="form-control-submit-button" style="width: 200px;">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="footer-col second">
+                        <h4 style="color:white">SANJAY JINDAL</h4>
+                        <ul class="list-unstyled li-space-lg p-big">
+                            <li>9426064310</li>
+                            <li>sanjay_zindal@rediffmail.com</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="copyright">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <p class="p-small">Copyright © First Computer</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button onclick="topFunction()" id="myBtn">
+        <img src="{% static 'images/up-arrow.png' %}" alt="alternative">
+    </button>
+    
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/swiper.min.js' %}"></script>
+    <script src="{% static 'js/purecounter.min.js' %}"></script>
+    <script src="{% static 'js/scripts.js' %}"></script>
+</body>
+</html>

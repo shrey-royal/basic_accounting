@@ -1,0 +1,199 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Your description">
+    <meta name="author" content="Your name">
+
+    <!-- OG Meta Tags to improve the way the post looks when you share the page on Facebook, Twitter, LinkedIn -->
+	<meta property="og:site_name" content="" /> <!-- website name -->
+	<meta property="og:site" content="" /> <!-- website link -->
+	<meta property="og:title" content=""/> <!-- title shown in the actual shared post -->
+	<meta property="og:description" content="" /> <!-- description shown in the actual shared post -->
+	<meta property="og:image" content="" /> <!-- image link, make sure it's jpg -->
+	<meta property="og:url" content="" /> <!-- where do you want your post to link to -->
+	<meta name="twitter:card" content="summary_large_image"> <!-- to have large image post format in Twitter -->
+
+    <!-- Webpage Title -->
+    <title>Registration Form</title>
+    
+    <!-- Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/fontawesome-all.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/swiper.css' %}" rel="stylesheet">
+	<link href="{% static 'css/styles.css' %}" rel="stylesheet">
+	
+	<!-- Favicon  -->
+    <link rel="icon" href="{% static 'images/favicon.png' %}">
+    
+    <style>
+        .error-message {
+            color: grey;
+            font-size: 0.9em;
+            margin-top: 0.25em;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Registration Form -->
+    <div id="contact" class="form-1">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2 class="h2-heading">REGISTRATION FORM</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-10 offset-lg-1">
+                    <!-- Contact Form -->
+                    <form method="post" onsubmit="return validateForm()">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input type="text" name="Full_Name" id="id_full_name" class="form-control-input" placeholder="Full Name" required>
+                            <span id="full_name_error" class="error-message"></span>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" name="Email" id="id_email" class="form-control-input" placeholder="Email" value="{{ email }}" required>
+                            {% if messages %}
+                                {% for message in messages %}
+                                    {% if message.tags == 'error' %}
+                                        <span class="text-danger">{{ message }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            <span id="email_error" class="error-message"></span>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" name="Password" id="id_password" class="form-control-input" placeholder="Password" required>
+                            <span id="password_error" class="error-message"></span>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="Contact_No" id="id_contact_no" class="form-control-input" placeholder="Contact No." required>
+                            <span id="contact_no_error" class="error-message"></span>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="Organization_Name" id="id_organization_name" class="form-control-input" placeholder="Organization Name" required>
+                            <span id="organization_name_error" class="error-message"></span>
+                        </div>
+                        <div class="form-group">
+                            <textarea name="Address" id="id_address" class="form-control-textarea" placeholder="Address" required></textarea>
+                            <span id="address_error" class="error-message"></span>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="form-control-submit-button">Submit</button>
+                        </div>
+                    </form>
+                    <!-- end of registration form -->
+                </div>
+            </div>
+        </div>
+    </div><!-- end of form-1 -->
+    <!-- end of registration form -->
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="footer-col second">
+                        <h4 style="color:white">SANJAY JINDAL</h4>
+                        <ul class="list-unstyled li-space-lg p-big">
+                            <li>9426064310</li>
+                            <li>sanjay_zindal@rediffmail.com</li>
+                        </ul>
+                    </div> <!-- end of footer-col -->
+                </div> <!-- end of col -->
+            </div> <!-- end of row -->
+        </div> <!-- end of container -->
+    </div> <!-- end of footer -->
+
+    <!-- Copyright -->
+    <div class="copyright">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <p class="p-small">Copyright © First Computer</p>
+                </div> 
+            </div> <!-- end of row -->
+        </div> <!-- end of container -->
+    </div> <!-- end of copyright -->
+
+    <!-- Back To Top Button -->
+    <button onclick="topFunction()" id="myBtn">
+        <img src="{% static 'images/up-arrow.png' %}" alt="alternative">
+    </button>
+    <!-- end of back to top button -->
+    	
+    <!-- Scripts -->
+    <script>
+        // Function to validate form input
+        function validateForm() {
+            let isValid = true;
+            
+            // Reset all error messages
+            document.getElementById('full_name_error').textContent = '';
+            document.getElementById('email_error').textContent = '';
+            document.getElementById('password_error').textContent = '';
+            document.getElementById('contact_no_error').textContent = '';
+            document.getElementById('organization_name_error').textContent = '';
+            document.getElementById('address_error').textContent = '';
+            
+            // Retrieve form values
+            const fullName = document.getElementById('id_full_name').value.trim();
+            const email = document.getElementById('id_email').value.trim();
+            const password = document.getElementById('id_password').value.trim();
+            const contactNo = document.getElementById('id_contact_no').value.trim();
+            const organizationName = document.getElementById('id_organization_name').value.trim();
+            const address = document.getElementById('id_address').value.trim();
+            
+            // Regular expressions
+            const nameRegex = /^[a-zA-Z\s]*$/;
+            const contactRegex = /^\d{10}$/;
+            
+            // Validate Full Name
+            if (!nameRegex.test(fullName)) {
+                document.getElementById('full_name_error').textContent = 'Full Name should not contain digits.';
+                isValid = false;
+            }
+            
+            // Validate Email
+            if (!email.includes('@') || !email.includes('.')) {
+                document.getElementById('email_error').textContent = 'Enter a valid email address.';
+                isValid = false;
+            }
+            
+            // Validate Password
+            if (password.length < 6) {
+                document.getElementById('password_error').textContent = 'Password should be at least 6 characters long.';
+                isValid = false;
+            }
+            
+            // Validate Contact Number
+            if (!contactRegex.test(contactNo)) {
+                document.getElementById('contact_no_error').textContent = 'Contact Number should be exactly 10 digits.';
+                isValid = false;
+            }
+            
+            // Validate Organization Name
+            if (!nameRegex.test(organizationName)) {
+                document.getElementById('organization_name_error').textContent = 'Organization Name should not contain digits.';
+                isValid = false;
+            }
+            
+            // No validation for Address as it can contain anything
+            
+            return isValid;
+        }
+    </script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script> <!-- Bootstrap framework -->
+    <script src="{% static 'js/swiper.min.js' %}"></script> <!-- Swiper for image and text sliders -->
+    <script src="{% static 'js/purecounter.min.js' %}"></script> <!-- Purecounter counter for statistics numbers -->
+    <script src="{% static 'js/scripts.js' %}"></script> <!-- Custom scripts -->
+</body>
+</html>
